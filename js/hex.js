@@ -24,7 +24,7 @@
 
     this.setKeybindings();
     this.makeGrid(3, 4);
-    this.player = new Player(0, 0, this.sprites.player);
+    this.player = new Player(this.grid, 0, 0, this.sprites.player);
 
     setInterval(this.step.bind(this), 1000 / this.fps);
     this.draw();
@@ -59,6 +59,8 @@
     } else {
       this.rotation = this.rotateTo;
     }
+
+    this.player.step();
   };
 
   Game.prototype.draw = function () {
@@ -110,7 +112,7 @@
           this.context.save();
             var cell = this.grid[row][col];
             if (typeof cell !== 'undefined') {
-              var coords = cell.screenCoordinates();
+              var coords = cell.getScreenCoordinates();
               this.context.translate(coords.x, coords.y);
               this.context.drawImage(cell.image, 0, 0);
               this.context.fillText(col + ", " + row, 150, 150); // debug
@@ -125,19 +127,11 @@
   Game.prototype.drawPlayer = function () {
     this.context.save();
 
-    // TODO: proper checks
-    try {
-      var playerCell = this.grid[this.player.gridY][this.player.gridX];
-      var playerScreenCoordinates = playerCell.screenCoordinates();
-
-      this.context.drawImage(
-        this.player.image,
-        playerScreenCoordinates.x - 250 - 64, playerScreenCoordinates.y - 290,
-        128, 128
-      );
-    } catch (e) {
-      //
-    }
+    this.context.drawImage(
+      this.player.image,
+      this.player.screenX, this.player.screenY,
+      this.player.width, this.player.height
+    );
 
     this.context.restore();
   };
@@ -148,21 +142,29 @@
     this.image = sprite;
   }
 
-  Cell.prototype.screenCoordinates = function () {
+  Cell.prototype.getScreenCoordinates = function () {
     return {
       x: this.image.width / 2 + this.col * this.image.width * 0.5,
       y: this.row * this.image.width * 0.869
     };
   };
 
-  function Player(x, y, sprite) {
+  function Player(grid, x, y, sprite) {
+    this.grid = grid;
     this.gridX = x;
     this.gridY = y;
     this.image = sprite;
+    this.width = 128;
+    this.height = 128;
+
+    this.gotoCoordinates = this.getScreenCoordinates();
+    this.screenX = 0;
+    this.screenY = 0;
   }
 
   Player.prototype.step = function () {
-
+    this.screenX += (this.gotoCoordinates.x - this.screenX) / 5;
+    this.screenY += (this.gotoCoordinates.y - this.screenY) / 5;
   };
 
   Player.prototype.move = function (direction, rotation) {
@@ -192,5 +194,20 @@
 
     this.gridX += deltas[rotation][direction].x;
     this.gridY += deltas[rotation][direction].y;
+
+    this.gotoCoordinates = this.getScreenCoordinates();
+  };
+
+  Player.prototype.getScreenCoordinates = function () {
+    try {
+      var playerCell = this.grid[this.gridY][this.gridX];
+      var screenCoordinates = playerCell.getScreenCoordinates();
+      screenCoordinates.x -= playerCell.image.width + this.width / 2;
+      screenCoordinates.y -= playerCell.image.height;
+
+      return screenCoordinates;
+    } catch (e) {
+      return { x: 0, y: 0 };
+    }
   };
 }());
