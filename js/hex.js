@@ -36,52 +36,20 @@
       this.rotationCount++;
     }.bind(this));
 
-    var deltas = [
-      {
-        // 0
-        up:    { x:  1, y: -1 },
-        down:  { x: -1, y:  1 },
-        left:  { x: -1, y: -1 },
-        right: { x:  1, y:  1 }
-      },
-      {
-        // 120
-        up:    { x: -2, y:  0 },
-        down:  { x:  2, y:  0 },
-        left:  { x: -1, y:  1 },
-        right: { x:  1, y: -1 }
-      },
-      {
-        // 240
-        up:    { x:  1, y:  1 },
-        down:  { x: -1, y: -1 },
-        left:  { x:  2, y:  0 },
-        right: { x: -2, y:  0 }
-      }
-    ];
-
     keypress.combo('up', function () {
-      var mapping = this.rotationCount % 3;
-      this.player.gridX += deltas[mapping].up.x;
-      this.player.gridY += deltas[mapping].up.y;
+      this.player.move('up', this.rotationCount % 3);
     }.bind(this));
 
     keypress.combo('down', function () {
-      var mapping = this.rotationCount % 3;
-      this.player.gridX += deltas[mapping].down.x;
-      this.player.gridY += deltas[mapping].down.y;
+      this.player.move('down', this.rotationCount % 3);
     }.bind(this));
 
     keypress.combo('left', function () {
-      var mapping = this.rotationCount % 3;
-      this.player.gridX += deltas[mapping].left.x;
-      this.player.gridY += deltas[mapping].left.y;
+      this.player.move('left', this.rotationCount % 3);
     }.bind(this));
 
     keypress.combo('right', function () {
-      var mapping = this.rotationCount % 3;
-      this.player.gridX += deltas[mapping].right.x;
-      this.player.gridY += deltas[mapping].right.y;
+      this.player.move('right', this.rotationCount % 3);
     }.bind(this));
   };
 
@@ -112,7 +80,7 @@
   };
 
   Game.prototype.makeGrid = function (width, height) {
-    var row, col, x, y, offset;
+    var row, col;
 
     this.grid = [];
 
@@ -177,7 +145,6 @@
   function Cell(row, col, sprite) {
     this.row = row;
     this.col = col;
-
     this.image = sprite;
   }
 
@@ -189,21 +156,41 @@
   };
 
   function Player(x, y, sprite) {
-    // this.loaded = false;
-
     this.gridX = x;
     this.gridY = y;
-
     this.image = sprite;
-
-    // this.image = new Image();
-    // this.image.src = './res/player.png';
-    // this.image.onload = function () {
-    //   this.loaded = true;
-    // }.bind(this);
   }
 
   Player.prototype.step = function () {
 
+  };
+
+  Player.prototype.move = function (direction, rotation) {
+    var deltas = [
+      {
+        // 0
+        up:    { x:  1, y: -1 },
+        down:  { x: -1, y:  1 },
+        left:  { x: -1, y: -1 },
+        right: { x:  1, y:  1 }
+      },
+      {
+        // 120
+        up:    { x: -2, y:  0 },
+        down:  { x:  2, y:  0 },
+        left:  { x: -1, y:  1 },
+        right: { x:  1, y: -1 }
+      },
+      {
+        // 240
+        up:    { x:  1, y:  1 },
+        down:  { x: -1, y: -1 },
+        left:  { x:  2, y:  0 },
+        right: { x: -2, y:  0 }
+      }
+    ];
+
+    this.gridX += deltas[rotation][direction].x;
+    this.gridY += deltas[rotation][direction].y;
   };
 }());
