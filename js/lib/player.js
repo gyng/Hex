@@ -9,11 +9,13 @@ function Player(grid, x, y, sprite) {
   this.gotoCoordinates = this.getScreenCoordinates();
   this.screenX = 0;
   this.screenY = 0;
+
+  this.easing = 0.2;
 }
 
 Player.prototype.step = function () {
-  this.screenX += (this.gotoCoordinates.x - this.screenX) / 5;
-  this.screenY += (this.gotoCoordinates.y - this.screenY) / 5;
+  this.screenX += (this.gotoCoordinates.x - this.screenX) * this.easing;
+  this.screenY += (this.gotoCoordinates.y - this.screenY) * this.easing;
 };
 
 Player.prototype.move = function (direction, rotation) {
