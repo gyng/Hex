@@ -12,7 +12,7 @@
     this.fps = 60;
 
     this.rotation = 0;
-    this.rotateSpeed = 0.05;
+    this.rotateEasing = 0.08;
     this.rotateTo = 0;
     this.rotationCount = 0;
 
@@ -54,12 +54,7 @@
   };
 
   Game.prototype.step = function () {
-    if (this.rotation < this.rotateTo) {
-      this.rotation += this.rotateSpeed;
-    } else {
-      this.rotation = this.rotateTo;
-    }
-
+    this.rotation += (this.rotateTo - this.rotation) * this.rotateEasing;
     this.player.step();
   };
 
