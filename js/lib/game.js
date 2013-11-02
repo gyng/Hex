@@ -14,9 +14,14 @@ function Game() {
   this.sprites.hex.src = './res/debug-hexagon.png';
   this.sprites.player = new Image();
   this.sprites.player.src = './res/player.png';
+  this.sprites.item = new Image();
+  this.sprites.item.src = './res/item.png';
 
   this.setKeybindings();
   this.makeGrid(3, 4);
+  this.grid[1][1].contents[0] = { image: this.sprites.item };
+  this.grid[1][1].contents[1] = { image: this.sprites.item };
+  this.grid[1][1].contents[2] = { image: this.sprites.item };
   this.player = new Player(this.grid, 0, 0, this.sprites.player);
 
   setInterval(this.step.bind(this), 1000 / this.fps);
@@ -49,6 +54,12 @@ Game.prototype.setKeybindings = function () {
 Game.prototype.step = function () {
   this.rotation += (this.rotateTo - this.rotation) * this.rotateEasing;
   this.player.step();
+
+  // Items
+  var playerCell = this.grid[this.player.gridY][this.player.gridX];
+  if (typeof playerCell.contents[this.rotationCount % 3] === 'object') {
+    this.grid[this.player.gridY][this.player.gridX].contents[this.rotationCount % 3] = 0;
+  }
 };
 
 Game.prototype.draw = function () {
@@ -58,8 +69,8 @@ Game.prototype.draw = function () {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
   this.context.restore();
 
+  // Draw grid, player
   this.context.save();
-    // Update grid
     this.context.translate(this.origin.x, this.origin.y);
     this.context.rotate(this.rotation);
     this.drawGrid();
@@ -76,7 +87,7 @@ Game.prototype.makeGrid = function (width, height) {
 
   for (row = 0; row < height; row++) {
     this.grid[row] = [];
-    for (col = row % 2; col < width * 2; col += 2) {
+    for (col = row % 2; col < width * 2 - row % 2; col += 2) {
       this.grid[row][col] = new Cell(row, col, this.sprites.hex);
     }
   }
@@ -90,9 +101,6 @@ Game.prototype.makeGrid = function (width, height) {
 Game.prototype.drawGrid = function () {
   this.context.save();
 
-  var width = this.grid.length;
-  var height = this.grid[0].length;
-
   this.context.translate(-this.gridCenter.x, -this.gridCenter.y);
 
   for (var row = 0; row < this.grid.length; row++) {
@@ -104,12 +112,45 @@ Game.prototype.drawGrid = function () {
             this.context.translate(coords.x, coords.y);
             this.context.drawImage(cell.image, 0, 0);
             this.context.fillText(col + ", " + row, 150, 150); // debug
+            this.drawItems(cell);
           }
         this.context.restore();
     }
   }
 
   this.context.restore();
+};
+
+Game.prototype.drawItems = function (cell) {
+  for (var i = 0; i < cell.contents.length; i++) {
+    if (typeof cell.contents[i] === 'object') {
+      var item = cell.contents[i];
+
+      switch (i) {
+      case 0:
+        this.context.drawImage(
+          item.image,
+          cell.image.width / 2 - item.image.width / 2,
+          cell.image.height * 3 / 4 - item.image.height / 2
+        );
+        break;
+      case 1:
+        this.context.drawImage(
+          item.image,
+          cell.image.width * 2 / 3,
+          cell.image.height * 1 / 3
+        );
+        break;
+      case 2:
+        this.context.drawImage(
+          item.image,
+          cell.image.width *1 / 3 - item.image.width,
+          cell.image.height * 1 / 3
+        );
+        break;
+      }
+    }
+  }
 };
 
 Game.prototype.drawPlayer = function () {

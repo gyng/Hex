@@ -43,21 +43,23 @@ Player.prototype.move = function (direction, rotation) {
     }
   ];
 
-  this.gridX += deltas[rotation][direction].x;
-  this.gridY += deltas[rotation][direction].y;
+
+  var newX = this.gridX + deltas[rotation][direction].x;
+  var newY = this.gridY + deltas[rotation][direction].y;
+
+  if (typeof this.grid[newY] !== 'undefined' && typeof this.grid[newY][newX] !== 'undefined') {
+    this.gridX = newX;
+    this.gridY = newY;
+  }
 
   this.gotoCoordinates = this.getScreenCoordinates();
 };
 
 Player.prototype.getScreenCoordinates = function () {
-  try {
-    var playerCell = this.grid[this.gridY][this.gridX];
-    var screenCoordinates = playerCell.getScreenCoordinates();
-    screenCoordinates.x -= playerCell.image.width + this.width / 2;
-    screenCoordinates.y -= playerCell.image.height;
+  var playerCell = this.grid[this.gridY][this.gridX];
+  var screenCoordinates = playerCell.getScreenCoordinates();
+  screenCoordinates.x -= playerCell.image.width + this.width / 2;
+  screenCoordinates.y -= playerCell.image.height;
 
-    return screenCoordinates;
-  } catch (e) {
-    return { x: 0, y: 0 };
-  }
+  return screenCoordinates;
 };
