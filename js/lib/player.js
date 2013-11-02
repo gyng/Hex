@@ -1,10 +1,11 @@
-function Player(grid, x, y, sprite) {
+function Player(grid, x, y, sprite, sounds) {
   this.grid = grid;
   this.gridX = x;
   this.gridY = y;
   this.image = sprite;
   this.width = 128;
   this.height = 128;
+  this.sounds = sounds;
 
   this.gotoCoordinates = this.getScreenCoordinates();
   this.screenX = 0;
@@ -50,6 +51,11 @@ Player.prototype.move = function (direction, rotation) {
   if (typeof this.grid[newY] !== 'undefined' && typeof this.grid[newY][newX] !== 'undefined') {
     this.gridX = newX;
     this.gridY = newY;
+
+    var sound = new Audio();
+    sound.src = this.sounds.move.src;
+    sound.play();
+    // this.sounds.move.play();
   }
 
   this.gotoCoordinates = this.getScreenCoordinates();

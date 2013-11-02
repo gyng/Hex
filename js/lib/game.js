@@ -17,12 +17,16 @@ function Game() {
   this.sprites.item = new Image();
   this.sprites.item.src = './res/item.png';
 
+  this.sounds = {};
+  this.sounds.move = new Audio('./res/sounds/click.ogg');
+  this.sounds.item = new Audio('./res/sounds/coin.ogg');
+
   this.setKeybindings();
   this.makeGrid(3, 4);
   this.grid[1][1].contents[0] = { image: this.sprites.item };
   this.grid[1][1].contents[1] = { image: this.sprites.item };
   this.grid[1][1].contents[2] = { image: this.sprites.item };
-  this.player = new Player(this.grid, 0, 0, this.sprites.player);
+  this.player = new Player(this.grid, 0, 0, this.sprites.player, this.sounds);
 
   setInterval(this.step.bind(this), 1000 / this.fps);
   this.draw();
@@ -59,6 +63,10 @@ Game.prototype.step = function () {
   var playerCell = this.grid[this.player.gridY][this.player.gridX];
   if (typeof playerCell.contents[this.rotationCount % 3] === 'object') {
     this.grid[this.player.gridY][this.player.gridX].contents[this.rotationCount % 3] = 0;
+
+    var sound = new Audio();
+    sound.src = this.sounds.item.src;
+    sound.play();
   }
 };
 
