@@ -30,7 +30,7 @@ function Game() {
   // Preload resources
   this.sprites = {};
   var spriteSources = [
-    ['hex', './res/sprites/debug-hexagon.png'],
+    ['hex0', './res/sprites/debug-hexagon.png'],
     ['hex1', './res/sprites/hexacube_01.png'],
     ['hex2', './res/sprites/hexacube_02.png'],
     ['hex3', './res/sprites/hexacube_03.png'],
@@ -85,7 +85,7 @@ function Game() {
 }
 
 Game.prototype.fitCanvasToScreen = function () {
-  this.canvas.width = $(window).width();
+  this.canvas.width = Math.max($(window).width() * 0.6, $(window).height());
   this.canvas.height = $(window).height() - 5;
   this.context.scale(this.scale, this.scale);
   this.gridOffset = { x: this.canvas.width / 2, y: this.canvas.height / 3 };
@@ -96,25 +96,22 @@ Game.prototype.setKeybindings = function () {
     this.rotate(1);
   }.bind(this));
 
-  keypress.combo('up', function () {
-    this.player.move('up', this.rotationCount % 3);
+  var move = function (dir) {
+    this.player.move(dir, this.rotationCount % 3);
     if (!this.playing) this.play();
-  }.bind(this));
+  };
 
-  keypress.combo('down', function () {
-    this.player.move('down', this.rotationCount % 3);
-    if (!this.playing) this.play();
-  }.bind(this));
+  keypress.combo('up', move.bind(this, 'up'));
+  keypress.combo('w', move.bind(this, 'up'));
 
-  keypress.combo('left', function () {
-    this.player.move('left', this.rotationCount % 3);
-    if (!this.playing) this.play();
-  }.bind(this));
+  keypress.combo('down', move.bind(this, 'down'));
+  keypress.combo('s', move.bind(this, 'down'));
 
-  keypress.combo('right', function () {
-    this.player.move('right', this.rotationCount % 3);
-    if (!this.playing) this.play();
-  }.bind(this));
+  keypress.combo('left', move.bind(this, 'left'));
+  keypress.combo('a', move.bind(this, 'left'));
+
+  keypress.combo('right', move.bind(this, 'right'));
+  keypress.combo('d', move.bind(this, 'right'));
 };
 
 Game.prototype.step = function () {
@@ -127,7 +124,7 @@ Game.prototype.step = function () {
     this.grid[this.player.gridY][this.player.gridX].contents[this.rotationCount % 3] = 0;
     this.collectedItems++;
 
-    this.changeGridSprites(this.sprites['hex' + this.collectedItems]);
+    this.changeGridSprites(this.sprites['hex' + (this.collectedItems + 1) % 8]);
 
     var sound = new Audio();
     sound.src = this.sounds.item.src;
@@ -188,13 +185,13 @@ Game.prototype.makeGrid = function (width, height) {
   for (row = 0; row < height; row++) {
     this.grid[row] = [];
     for (col = row % 2; col < width * 2 - row % 2; col += 2) {
-      this.grid[row][col] = new Cell(row, col, this.sprites.hex);
+      this.grid[row][col] = new Cell(row, col, this.sprites.hex1);
     }
   }
 
   this.gridCenter = {
-    x: width * this.sprites.hex.width / 2,
-    y: height * this.sprites.hex.height / 3
+    x: width * this.sprites.hex1.width / 2,
+    y: height * this.sprites.hex1.height / 3
   };
 };
 
@@ -256,6 +253,7 @@ Game.prototype.drawPlayer = function () {
 Game.prototype.play = function () {
   this.playing = true;
   this.music.play();
+  $(".instructions").fadeOut();
 };
 
 Game.prototype.plantItem = function (x, y, sector) {
