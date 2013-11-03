@@ -11,11 +11,11 @@ function Game() {
 
   this.sprites = {};
   this.sprites.hex = new Image();
-  this.sprites.hex.src = './res/debug-hexagon.png';
+  this.sprites.hex.src = './res/sprites/debug-hexagon.png';
   this.sprites.player = new Image();
-  this.sprites.player.src = './res/player.png';
+  this.sprites.player.src = './res/sprites/player.png';
   this.sprites.item = new Image();
-  this.sprites.item.src = './res/item.png';
+  this.sprites.item.src = './res/sprites/item.png';
 
   this.sounds = {};
   this.sounds.move = new Audio('./res/sounds/click.ogg');
