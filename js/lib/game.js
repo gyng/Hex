@@ -9,6 +9,10 @@ function Game() {
   this.rotateTo = 0;
   this.rotationCount = 0;
 
+  this.scale = 0.6;
+  this.fitCanvasToScreen();
+  $(window).resize(this.fitCanvasToScreen.bind(this));
+
   // t in milliseconds, fun: function to apply, args: arguments to pass to function
   this.level = [
     { t: 3000, fun: this.rotate, args: [1] },
@@ -18,7 +22,9 @@ function Game() {
     { t: 5000, fun: this.plantItem, args: [2, 2] },
     { t: 9000, fun: this.rotate },
     { t: 12000, fun: this.rotate },
-    { t: 14500, fun: this.rotate }
+    { t: 12000, fun: this.plantItem },
+    { t: 14500, fun: this.rotate },
+    { t: 14500, fun: this.plantItem },
   ];
 
   // Preload resources
@@ -75,6 +81,13 @@ function Game() {
     this.sprites[spriteSources[i][0]].src = spriteSources[i][1];
   }
 }
+
+Game.prototype.fitCanvasToScreen = function () {
+  this.canvas.width = $(window).width();
+  this.canvas.height = $(window).height() - 5;
+  this.context.scale(this.scale, this.scale);
+  this.gridOffset = { x: this.canvas.width / 2, y: this.canvas.height / 3 };
+};
 
 Game.prototype.setKeybindings = function () {
   keypress.combo('space', function () {
@@ -155,6 +168,7 @@ Game.prototype.draw = function () {
 
   // Draw grid, player
   this.context.save();
+    this.context.translate(this.gridOffset.x, this.gridOffset.y);
     this.context.translate(this.origin.x, this.origin.y);
     this.context.rotate(this.rotation);
     this.drawGrid();
@@ -177,8 +191,8 @@ Game.prototype.makeGrid = function (width, height) {
   }
 
   this.gridCenter = {
-    x: width * 250 / 2,
-    y: height * 290 / 3
+    x: width * this.sprites.hex.width / 2,
+    y: height * this.sprites.hex.height / 3
   };
 };
 
