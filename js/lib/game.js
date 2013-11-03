@@ -70,6 +70,8 @@ function Game() {
 
       this.player = new Player(this.grid, 0, 0, this.sprites.player, this.sounds);
 
+      $('.loading').hide();
+
       setInterval(this.step.bind(this), 1000 / this.fps);
       this.draw();
     }

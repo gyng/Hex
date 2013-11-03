@@ -35,3 +35,10 @@ body {
     bottom: 150px;
     text-align: center;
 }
+
+.loading {
+    position: absolute;
+    top: 33%;
+    width: 100%;
+    text-align: center;
+}
