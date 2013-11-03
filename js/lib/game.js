@@ -11,27 +11,18 @@ function Game() {
 
   // Preload resources
   this.sprites = {};
-  this.sprites.hex = new Image();
-  this.sprites.hex.src = './res/sprites/debug-hexagon.png';
-  this.sprites.hex1 = new Image();
-  this.sprites.hex1.src = './res/sprites/hexacube_01.png';
-  this.sprites.hex2 = new Image();
-  this.sprites.hex2.src = './res/sprites/hexacube_02.png';
-  this.sprites.hex3 = new Image();
-  this.sprites.hex3.src = './res/sprites/hexacube_03.png';
-  this.sprites.hex4 = new Image();
-  this.sprites.hex4.src = './res/sprites/hexacube_04.png';
-  this.sprites.hex5 = new Image();
-  this.sprites.hex5.src = './res/sprites/hexacube_05.png';
-  this.sprites.hex6 = new Image();
-  this.sprites.hex6.src = './res/sprites/hexacube_06.png';
-  this.sprites.hex7 = new Image();
-  this.sprites.hex7.src = './res/sprites/hexacube_07.png';
-
-  this.sprites.player = new Image();
-  this.sprites.player.src = './res/sprites/player.png';
-  this.sprites.item = new Image();
-  this.sprites.item.src = './res/sprites/item.png';
+  var spriteSources = [
+    ['hex', './res/sprites/debug-hexagon.png'],
+    ['hex1', './res/sprites/hexacube_01.png'],
+    ['hex2', './res/sprites/hexacube_02.png'],
+    ['hex3', './res/sprites/hexacube_03.png'],
+    ['hex4', './res/sprites/hexacube_04.png'],
+    ['hex5', './res/sprites/hexacube_05.png'],
+    ['hex6', './res/sprites/hexacube_06.png'],
+    ['hex7', './res/sprites/hexacube_07.png'],
+    ['player', './res/sprites/player.png'],
+    ['item', './res/sprites/item.png']
+  ];
 
   // Preload audio -- when played create a new Audio instance and set
   // that object's src to the preloaded Audio's src for overlapping
@@ -40,18 +31,34 @@ function Game() {
   this.sounds.move = new Audio('./res/sounds/click.ogg');
   this.sounds.item = new Audio('./res/sounds/coin.ogg');
 
-  // Game variables
-  this.collectedItems = 0;
+  // Loader
+  var loadedSprites = 0;
+  var loadedCallback = function () {
+    loadedSprites++;
 
-  this.setKeybindings();
-  this.makeGrid(3, 4);
-  this.grid[1][1].contents[0] = { image: this.sprites.item };
-  this.grid[1][1].contents[1] = { image: this.sprites.item };
-  this.grid[1][1].contents[2] = { image: this.sprites.item };
-  this.player = new Player(this.grid, 0, 0, this.sprites.player, this.sounds);
+    if (loadedSprites == spriteSources.length) {
+      // Sprites loaded, start the game
+      // Game variables
+      this.collectedItems = 0;
+      this.playing = false;
 
-  setInterval(this.step.bind(this), 1000 / this.fps);
-  this.draw();
+      this.setKeybindings();
+      this.makeGrid(3, 4);
+      this.grid[1][1].contents[0] = { image: this.sprites.item };
+      this.grid[1][1].contents[1] = { image: this.sprites.item };
+      this.grid[1][1].contents[2] = { image: this.sprites.item };
+      this.player = new Player(this.grid, 0, 0, this.sprites.player, this.sounds);
+
+      setInterval(this.step.bind(this), 1000 / this.fps);
+      this.draw();
+    }
+  }.bind(this);
+
+  for (var i = 0; i < spriteSources.length; i++) {
+    this.sprites[spriteSources[i][0]] = new Image();
+    this.sprites[spriteSources[i][0]].onload = loadedCallback;
+    this.sprites[spriteSources[i][0]].src = spriteSources[i][1];
+  }
 }
 
 Game.prototype.setKeybindings = function () {
@@ -162,6 +169,11 @@ Game.prototype.changeGridSprites = function (sprite) {
       }
     }
   }
+};
+
+Game.prototype.play = function () {
+  this.playing = true;
+  document.getElementById('music').play();
 };
 
 Game.prototype.drawItems = function (cell) {
