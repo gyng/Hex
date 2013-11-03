@@ -88,7 +88,7 @@ Game.prototype.fitCanvasToScreen = function () {
   this.canvas.width = Math.max($(window).width() * 0.6, $(window).height());
   this.canvas.height = $(window).height() - 5;
   this.context.scale(this.scale, this.scale);
-  this.gridOffset = { x: this.canvas.width / 2, y: this.canvas.height / 3 };
+  this.gridOffset = { x: this.canvas.width / 3, y: this.canvas.height / 3 };
 };
 
 Game.prototype.setKeybindings = function () {
