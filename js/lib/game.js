@@ -9,6 +9,15 @@ function Game() {
   this.rotateTo = 0;
   this.rotationCount = 0;
 
+  this.level = [
+    { t: 3000, fun: this.rotate, args: [1] },
+    { t: 5000, fun: this.rotate },
+    { t: 7000, fun: this.rotate },
+    { t: 9000, fun: this.rotate },
+    { t: 12000, fun: this.rotate },
+    { t: 14500, fun: this.rotate }
+  ];
+
   // Preload resources
   this.sprites = {};
   var spriteSources = [
@@ -30,6 +39,7 @@ function Game() {
   this.sounds = {};
   this.sounds.move = new Audio('./res/sounds/click.ogg');
   this.sounds.item = new Audio('./res/sounds/coin.ogg');
+  this.music = document.getElementById('music');
 
   // Loader
   var loadedSprites = 0;
@@ -63,24 +73,27 @@ function Game() {
 
 Game.prototype.setKeybindings = function () {
   keypress.combo('space', function () {
-    this.rotateTo += Math.PI * 2 / 3; // 120deg
-    this.rotationCount++;
+    this.rotate(1);
   }.bind(this));
 
   keypress.combo('up', function () {
     this.player.move('up', this.rotationCount % 3);
+    if (!this.playing) this.play();
   }.bind(this));
 
   keypress.combo('down', function () {
     this.player.move('down', this.rotationCount % 3);
+    if (!this.playing) this.play();
   }.bind(this));
 
   keypress.combo('left', function () {
     this.player.move('left', this.rotationCount % 3);
+    if (!this.playing) this.play();
   }.bind(this));
 
   keypress.combo('right', function () {
     this.player.move('right', this.rotationCount % 3);
+    if (!this.playing) this.play();
   }.bind(this));
 };
 
@@ -100,6 +113,32 @@ Game.prototype.step = function () {
     sound.src = this.sounds.item.src;
     sound.play();
   }
+
+  // Level events
+  var time = parseInt(this.music.currentTime * 1000, 10);
+  var cull = false;
+  for (var i = 0; i < this.level.length; i++) {
+    var action = this.level[i];
+    if (action.t < time) {
+      var args = action.args ? action.args : null;
+      action.fun.call(this, args);
+      action.cull = true;
+      cull = true;
+    }
+  }
+
+  // Cleanup level event list
+  if (cull) {
+    this.level = this.level.filter(function (e) {
+      return e.cull !== true;
+    });
+  }
+};
+
+Game.prototype.rotate = function (times) {
+  if (typeof times !== 'number') times = 1;
+  this.rotateTo += Math.PI * 2 / 3 * times; // 120deg
+  this.rotationCount++;
 };
 
 Game.prototype.draw = function () {
@@ -173,7 +212,7 @@ Game.prototype.changeGridSprites = function (sprite) {
 
 Game.prototype.play = function () {
   this.playing = true;
-  document.getElementById('music').play();
+  this.music.play();
 };
 
 Game.prototype.drawItems = function (cell) {
