@@ -9,17 +9,39 @@ function Game() {
   this.rotateTo = 0;
   this.rotationCount = 0;
 
+  // Preload resources
   this.sprites = {};
   this.sprites.hex = new Image();
   this.sprites.hex.src = './res/sprites/debug-hexagon.png';
+  this.sprites.hex1 = new Image();
+  this.sprites.hex1.src = './res/sprites/hexacube_01.png';
+  this.sprites.hex2 = new Image();
+  this.sprites.hex2.src = './res/sprites/hexacube_02.png';
+  this.sprites.hex3 = new Image();
+  this.sprites.hex3.src = './res/sprites/hexacube_03.png';
+  this.sprites.hex4 = new Image();
+  this.sprites.hex4.src = './res/sprites/hexacube_04.png';
+  this.sprites.hex5 = new Image();
+  this.sprites.hex5.src = './res/sprites/hexacube_05.png';
+  this.sprites.hex6 = new Image();
+  this.sprites.hex6.src = './res/sprites/hexacube_06.png';
+  this.sprites.hex7 = new Image();
+  this.sprites.hex7.src = './res/sprites/hexacube_07.png';
+
   this.sprites.player = new Image();
   this.sprites.player.src = './res/sprites/player.png';
   this.sprites.item = new Image();
   this.sprites.item.src = './res/sprites/item.png';
 
+  // Preload audio -- when played create a new Audio instance and set
+  // that object's src to the preloaded Audio's src for overlapping
+  // playback
   this.sounds = {};
   this.sounds.move = new Audio('./res/sounds/click.ogg');
   this.sounds.item = new Audio('./res/sounds/coin.ogg');
+
+  // Game variables
+  this.collectedItems = 0;
 
   this.setKeybindings();
   this.makeGrid(3, 4);
@@ -63,6 +85,9 @@ Game.prototype.step = function () {
   var playerCell = this.grid[this.player.gridY][this.player.gridX];
   if (typeof playerCell.contents[this.rotationCount % 3] === 'object') {
     this.grid[this.player.gridY][this.player.gridX].contents[this.rotationCount % 3] = 0;
+    this.collectedItems++;
+
+    this.changeGridSprites(this.sprites['hex' + this.collectedItems]);
 
     var sound = new Audio();
     sound.src = this.sounds.item.src;
@@ -127,6 +152,16 @@ Game.prototype.drawGrid = function () {
   }
 
   this.context.restore();
+};
+
+Game.prototype.changeGridSprites = function (sprite) {
+  for (var i = 0; i < this.grid.length; i++) {
+    for (var j = 0; j < this.grid[i].length; j++) {
+      if (this.grid[i] && this.grid[i][j]) {
+        this.grid[i][j].image = sprite;
+      }
+    }
+  }
 };
 
 Game.prototype.drawItems = function (cell) {
