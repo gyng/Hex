@@ -11,3 +11,9 @@ Cell.prototype.getScreenCoordinates = function () {
     y: this.row * this.image.width * 0.869
   };
 };
+
+Cell.prototype.addItem = function (sector, item) {
+  item.cell = this;
+  item.sector = sector;
+  this.contents[sector] = item;
+};

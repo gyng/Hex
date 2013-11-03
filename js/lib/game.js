@@ -9,10 +9,13 @@ function Game() {
   this.rotateTo = 0;
   this.rotationCount = 0;
 
+  // t in milliseconds, fun: function to apply, args: arguments to pass to function
   this.level = [
     { t: 3000, fun: this.rotate, args: [1] },
     { t: 5000, fun: this.rotate },
+    { t: 5000, fun: this.plantItem },
     { t: 7000, fun: this.rotate },
+    { t: 5000, fun: this.plantItem, args: [2, 2] },
     { t: 9000, fun: this.rotate },
     { t: 12000, fun: this.rotate },
     { t: 14500, fun: this.rotate }
@@ -53,10 +56,12 @@ function Game() {
       this.playing = false;
 
       this.setKeybindings();
+
       this.makeGrid(3, 4);
-      this.grid[1][1].contents[0] = { image: this.sprites.item };
-      this.grid[1][1].contents[1] = { image: this.sprites.item };
-      this.grid[1][1].contents[2] = { image: this.sprites.item };
+      this.plantItem();
+      this.plantItem();
+      this.plantItem();
+
       this.player = new Player(this.grid, 0, 0, this.sprites.player, this.sounds);
 
       setInterval(this.step.bind(this), 1000 / this.fps);
@@ -121,7 +126,7 @@ Game.prototype.step = function () {
     var action = this.level[i];
     if (action.t < time) {
       var args = action.args ? action.args : null;
-      action.fun.call(this, args);
+      action.fun.apply(this, args);
       action.cull = true;
       cull = true;
     }
@@ -210,39 +215,12 @@ Game.prototype.changeGridSprites = function (sprite) {
   }
 };
 
-Game.prototype.play = function () {
-  this.playing = true;
-  this.music.play();
-};
-
 Game.prototype.drawItems = function (cell) {
   for (var i = 0; i < cell.contents.length; i++) {
-    if (typeof cell.contents[i] === 'object') {
+    if (cell.contents[i].constructor.name === 'Item') {
       var item = cell.contents[i];
-
-      switch (i) {
-      case 0:
-        this.context.drawImage(
-          item.image,
-          cell.image.width / 2 - item.image.width / 2,
-          cell.image.height * 3 / 4 - item.image.height / 2
-        );
-        break;
-      case 1:
-        this.context.drawImage(
-          item.image,
-          cell.image.width * 2 / 3,
-          cell.image.height * 1 / 3
-        );
-        break;
-      case 2:
-        this.context.drawImage(
-          item.image,
-          cell.image.width *1 / 3 - item.image.width,
-          cell.image.height * 1 / 3
-        );
-        break;
-      }
+      var cellOffsetScreenCoordinates = item.getScreenCoordinates();
+      this.context.drawImage(item.image, cellOffsetScreenCoordinates.x, cellOffsetScreenCoordinates.y);
     }
   }
 };
@@ -257,4 +235,36 @@ Game.prototype.drawPlayer = function () {
   );
 
   this.context.restore();
+};
+
+Game.prototype.play = function () {
+  this.playing = true;
+  this.music.play();
+};
+
+Game.prototype.plantItem = function (x, y, sector) {
+  var randomInt = function (min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  };
+
+  var randomProperty = function (obj) {
+    var keys = Object.keys(obj);
+    return obj[keys[ keys.length * Math.random() << 0]];
+  };
+
+  var newx, newy, newSector;
+
+  var planted = false;
+  var tries = 0;
+  while (!planted && tries < 100) {
+    tries++;
+    var col = (x === null || typeof x === 'undefined') ? randomProperty(this.grid) : this.grid[x];
+    var cell = (y === null || typeof y === 'undefined') ? randomProperty(col) : this.grid[x][y];
+    sector = (sector === null || typeof sector === 'undefined') ? randomInt(0, 2) : sector;
+
+    if (cell.contents[sector].constructor.name !== 'Item') {
+      cell.addItem(sector, new Item(this.sprites.item));
+      planted = true;
+    }
+  }
 };
