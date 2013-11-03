@@ -1,9 +1,9 @@
 html {
     width: 100%;
     height: 100%;
-	overflow: hidden;
-	padding: 0;
-	margin: 0;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
 
     position: fixed;
     overflow-y: scroll;
@@ -12,8 +12,13 @@ html {
 body {
     width: 100%;
     height: 100%;
-	padding: 0;
-	margin: 0;
+    padding: 0;
+    margin: 0;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .container {
