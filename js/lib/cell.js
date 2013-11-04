@@ -5,15 +5,17 @@ function Cell(row, col, sprite) {
   this.contents = [0, 0, 0];
 }
 
-Cell.prototype.getScreenCoordinates = function () {
-  return {
-    x: this.image.width / 2 + this.col * this.image.width * 0.5,
-    y: this.row * this.image.width * 0.869
-  };
-};
+Cell.prototype = {
+  getScreenCoordinates: function () {
+    return {
+      x: this.image.width / 2 + this.col * this.image.width * 0.5,
+      y: this.row * this.image.width * 0.869
+    };
+  },
 
-Cell.prototype.addItem = function (sector, item) {
-  item.cell = this;
-  item.sector = sector;
-  this.contents[sector] = item;
+  addItem: function (sector, item) {
+    item.cell = this;
+    item.sector = sector;
+    this.contents[sector] = item;
+  }
 };
