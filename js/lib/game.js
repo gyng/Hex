@@ -3,8 +3,9 @@ function Game() {
 }
 
 Game.prototype = {
+  // Assigns loadedCallback to each Image's onload
+  // Calls initialize from loadedCallback when all sprites are loaded
   load: function () {
-    // Preload resources
     this.sprites = {};
     var spriteSources = [
       ['hex0', './res/sprites/debug-hexagon.png'],
@@ -45,26 +46,28 @@ Game.prototype = {
   },
 
   initialize: function () {
+    // Rendering variables
     this.canvas = $('#canvas')[0];
     this.context = this.canvas.getContext('2d');
     this.origin = { x: 400, y: 400 };
     this.fps = 60;
 
+    this.scale = 0.6;
+    this.fitCanvasToScreen();
+    $(window).resize(this.fitCanvasToScreen.bind(this));
+
+    this.setKeybindings();
+
+    // Game variables
     this.rotation = 0;
     this.rotateEasing = 0.08;
     this.rotateTo = 0;
     this.rotationCount = 0;
 
-    this.scale = 0.6;
-    this.fitCanvasToScreen();
-    $(window).resize(this.fitCanvasToScreen.bind(this));
-
-    // Game variables
     this.collectedItems = 0;
     this.playing = false;
 
-    this.setKeybindings();
-
+    // Level
     this.makeGrid(3, 4);
     this.initializeLevel();
     this.plantItem();
@@ -73,6 +76,7 @@ Game.prototype = {
 
     this.player = new Player(this.grid, 0, 0, this.sprites.player, this.sounds);
 
+    // Begin game loop
     setInterval(this.step.bind(this), 1000 / this.fps);
     this.draw();
   },
