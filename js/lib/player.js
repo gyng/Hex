@@ -1,8 +1,8 @@
-function Player(grid, x, y, sprite, sounds) {
+function Player(grid, x, y, sprites, sounds) {
   this.grid = grid;
   this.gridX = x;
   this.gridY = y;
-  this.image = sprite;
+  this.sprites = sprites;
   this.width = 128; // Divided by 2 for rotation hack
   this.height = 128;
   this.sounds = sounds;
@@ -12,11 +12,16 @@ function Player(grid, x, y, sprite, sounds) {
   this.screenY = 0;
 
   this.easing = 0.2;
+  this.lastDirection = 'right';
 }
 
 Player.prototype.step = function () {
   this.screenX += (this.gotoCoordinates.x - this.screenX) * this.easing;
   this.screenY += (this.gotoCoordinates.y - this.screenY) * this.easing;
+};
+
+Player.prototype.image = function () {
+  return this.sprites[this.lastDirection];
 };
 
 Player.prototype.move = function (direction, rotation) {
@@ -44,7 +49,6 @@ Player.prototype.move = function (direction, rotation) {
     }
   ];
 
-
   var newX = this.gridX + deltas[rotation][direction].x;
   var newY = this.gridY + deltas[rotation][direction].y;
 
@@ -55,10 +59,10 @@ Player.prototype.move = function (direction, rotation) {
     var sound = new Audio();
     sound.src = this.sounds.move.src;
     sound.play();
-    // this.sounds.move.play();
   }
 
   this.gotoCoordinates = this.getScreenCoordinates();
+  this.lastDirection = direction;
 };
 
 Player.prototype.getScreenCoordinates = function () {

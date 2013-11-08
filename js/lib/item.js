@@ -14,13 +14,13 @@ Item.prototype = {
       };
     case 1:
       return {
-        x: this.cell.image.width * 2 / 3,
-        y: this.cell.image.height * 1 / 3
+        x: this.cell.image.width * 1 / 3 - this.image.height / 6,
+        y: this.cell.image.height * 1 / 6
       };
     case 2:
       return {
-        x: this.cell.image.width *1 / 3 - this.image.width,
-        y: this.cell.image.height * 1 / 3
+        x: this.cell.image.width * -1 / 3 + this.image.height / 6,
+        y: this.cell.image.height * 1 / 6
       };
     }
   }

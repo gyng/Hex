@@ -9,7 +9,8 @@ Game.prototype = {
   load: function () {
     this.sprites = {};
     var spriteSources = [
-      ['hex0', './res/sprites/debug-hexagon.png'],
+      ['debughex', './res/sprites/debug-hexagon.png'],
+      ['hex0', './res/sprites/hexacube_00.png'],
       ['hex1', './res/sprites/hexacube_01.png'],
       ['hex2', './res/sprites/hexacube_02.png'],
       ['hex3', './res/sprites/hexacube_03.png'],
@@ -18,7 +19,21 @@ Game.prototype = {
       ['hex6', './res/sprites/hexacube_06.png'],
       ['hex7', './res/sprites/hexacube_07.png'],
       ['player', './res/sprites/player.png'],
-      ['item', './res/sprites/item.png']
+      ['player_up', './res/sprites/player_up.png'],
+      ['player_down', './res/sprites/player_down.png'],
+      ['player_right', './res/sprites/player_right.png'],
+      ['player_left', './res/sprites/player_left.png'],
+      ['item', './res/sprites/item.png'],
+      ['obj_1', './res/sprites/obj_1.png'],
+      ['obj_2', './res/sprites/obj_2.png'],
+      ['obj_3', './res/sprites/obj_3.png'],
+      ['obj_4', './res/sprites/obj_4.png'],
+      ['obj_5', './res/sprites/obj_5.png'],
+      ['obj_6', './res/sprites/obj_6.png'],
+      ['obj_7', './res/sprites/obj_7.png'],
+      ['obj_8', './res/sprites/obj_8.png'],
+      ['obj_9', './res/sprites/obj_9.png'],
+      ['obj_10', './res/sprites/obj_10.png']
     ];
 
     // Preload audio -- when played create a new Audio instance and set
@@ -75,7 +90,13 @@ Game.prototype = {
     this.plantItem();
     this.plantItem();
 
-    this.player = new Player(this.grid, 0, 0, this.sprites.player, this.sounds);
+    var playerSprites = {
+      up:    this.sprites.player_up,
+      down:  this.sprites.player_down,
+      left:  this.sprites.player_left,
+      right: this.sprites.player_right
+    };
+    this.player = new Player(this.grid, 0, 0, playerSprites, this.sounds);
 
     // Begin game loop
     setInterval(this.step.bind(this), 1000 / this.fps);
@@ -96,7 +117,7 @@ Game.prototype = {
       { t: 19500, fun: this.rotate },
       { t: 22000, fun: this.rotate },
       { t: 24000, fun: this.rotate },
-      { t: 27000, fun: this.spinUntil, args: [31000] },
+      { t: 28000, fun: this.spinUntil, args: [31000] },
       { t: 38000, fun: this.spinUntil, args: [42000] },
       { t: 53000, fun: this.spinUntil, args: [57000] },
       { t: 63000, fun: this.spinUntil, args: [67000] },
@@ -163,6 +184,7 @@ Game.prototype = {
 
     // Debug bindings
     keypress.combo('space', function () { this.rotate(1); }.bind(this));
+    keypress.combo('p', function () { this.plantItem(); }.bind(this));
   },
 
   step: function () {
@@ -175,6 +197,7 @@ Game.prototype = {
       this.collectedItems++;
       this.grid[this.player.gridY][this.player.gridX].contents[this.rotationCount % 3] = 0;
       this.changeGridSprites(this.sprites['hex' + (this.collectedItems + 1) % 8]);
+      this.plantItem();
 
       var sound = new Audio();
       sound.src = this.sounds.item.src;
@@ -210,7 +233,6 @@ Game.prototype = {
   },
 
   spinUntil: function (endTime) {
-    console.log(this.time);
     if (endTime > this.time) {
       if (this.time % 4 === 0) this.rotate();
       return false;
@@ -246,10 +268,7 @@ Game.prototype = {
     offscreenCanvas.width = size;
     offscreenCanvas.height = size;
 
-    var xOffset = image.width / 2;
-    var yOffset = image.height / 2;
-
-    offscreenCtx.translate(xOffset, yOffset);
+    offscreenCtx.translate(image.width / 2, image.height / 2);
     offscreenCtx.rotate(angle + Math.PI * 2);
     offscreenCtx.drawImage(image, -(image.width / 2), -(image.height / 2));
 
@@ -264,7 +283,7 @@ Game.prototype = {
     for (row = 0; row < height; row++) {
       this.grid[row] = [];
       for (col = row % 2; col < width * 2 - row % 2; col += 2) {
-        this.grid[row][col] = new Cell(row, col, this.sprites.hex1);
+        this.grid[row][col] = new Cell(row, col, this.sprites.hex0);
       }
     }
 
@@ -287,7 +306,7 @@ Game.prototype = {
               var coords = cell.getScreenCoordinates();
               this.context.translate(coords.x, coords.y);
               this.context.drawImage(cell.image, 0, 0);
-              this.context.fillText(col + ", " + row, 150, 150); // debug
+              // this.context.fillText(col + ", " + row, 150, 150); // debug
               this.drawItems(cell);
             }
           this.context.restore();
@@ -310,9 +329,12 @@ Game.prototype = {
   drawItems: function (cell) {
     for (var i = 0; i < cell.contents.length; i++) {
       if (typeof cell.contents[i] === 'object') {
-        var item = cell.contents[i];
-        var cellOffsetScreenCoordinates = item.getScreenCoordinates();
-        this.context.drawImage(item.image, cellOffsetScreenCoordinates.x, cellOffsetScreenCoordinates.y);
+        this.context.save();
+          var item = cell.contents[i];
+          var cellOffsetScreenCoordinates = item.getScreenCoordinates();
+          var rotatedImage = this.rotateAndCache(item.image, Math.PI * 2 / 3 * -i);
+          this.context.drawImage(rotatedImage, cellOffsetScreenCoordinates.x, cellOffsetScreenCoordinates.y);
+        this.context.restore();
       }
     }
   },
@@ -324,14 +346,15 @@ Game.prototype = {
     var y = this.player.screenY;
 
     var rotationState = this.rotationCount % 3;
-    if (rotationState === 1) y -= this.player.width * 0.1;
+    if (rotationState === 0) y -= this.player.width * 0.1;
+    if (rotationState === 1) y -= this.player.width * 0.2;
     if (rotationState === 2) {
       y -= this.player.width * 0.1;
       x -= this.player.width * 0.05;
     }
 
     this.context.drawImage(
-      this.rotateAndCache(this.player.image, -this.rotation),
+      this.rotateAndCache(this.player.image(), -this.rotation),
       x, y,
       this.player.width, this.player.height
     );
@@ -360,15 +383,17 @@ Game.prototype = {
     var planted = false;
     var tries = 0;
 
+    var spriteID = 'obj_' + randomInt(1, 10);
+
     // Indeterministic
-    while (!planted && tries < 100) {
+    while (!planted && tries < 1000) {
       tries++;
       var col = (x === null || typeof x === 'undefined') ? randomProperty(this.grid) : this.grid[x];
       var cell = (y === null || typeof y === 'undefined') ? randomProperty(col) : this.grid[x][y];
       sector = (sector === null || typeof sector === 'undefined') ? randomInt(0, 2) : sector;
 
-      if (cell.contents[sector].constructor.name !== 'Item') {
-        cell.addItem(sector, new Item(this.sprites.item));
+      if (typeof cell.contents[sector] !== 'object') {
+        cell.addItem(sector, new Item(this.sprites[spriteID]));
         planted = true;
       }
     }
