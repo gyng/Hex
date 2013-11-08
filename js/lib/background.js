@@ -6,7 +6,7 @@ function Background() {
   this.plane = null;
 
   // Rendering hack
-  this.fps = 8;
+  this.fps = 10;
   this.now = Date.now();
   this.then = Date.now();
   this.interval = 1000/this.fps;

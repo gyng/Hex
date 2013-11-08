@@ -5,6 +5,7 @@ function Game() {
 Game.prototype = {
   // Assigns loadedCallback to each Image's onload
   // Calls initialize from loadedCallback when all sprites are loaded
+  // ! Also assumes sounds load fine !
   load: function () {
     this.sprites = {};
     var spriteSources = [
@@ -32,7 +33,7 @@ Game.prototype = {
     var loadedSprites = 0;
     var loadedCallback = function () {
       loadedSprites++;
-      if (loadedSprites == spriteSources.length) {
+      if (loadedSprites === spriteSources.length) {
         $('.loading').hide();
         this.initialize(); // Sprites loaded, start the game
       }
@@ -82,18 +83,59 @@ Game.prototype = {
   },
 
   initializeLevel: function () {
-    // t in milliseconds, fun: function to apply, args: arguments to pass to function
+    // t in milliseconds
+    // fun: function to apply
+    // args: array of arguments to pass to function
     this.level = [
-      { t: 3000, fun: this.rotate, args: [1] },
+      { t: 2500, fun: this.rotate },
       { t: 5000, fun: this.rotate },
-      { t: 5000, fun: this.plantItem },
       { t: 7000, fun: this.rotate },
-      { t: 5000, fun: this.plantItem, args: [2, 2] },
-      { t: 9000, fun: this.rotate },
-      { t: 12000, fun: this.rotate },
-      { t: 12000, fun: this.plantItem },
+      { t: 9500, fun: this.rotate },
       { t: 14500, fun: this.rotate },
-      { t: 14500, fun: this.plantItem },
+      { t: 17000, fun: this.rotate },
+      { t: 19500, fun: this.rotate },
+      { t: 22000, fun: this.rotate },
+      { t: 24000, fun: this.rotate },
+      { t: 27000, fun: this.spinUntil, args: [31000] },
+      { t: 38000, fun: this.spinUntil, args: [42000] },
+      { t: 53000, fun: this.spinUntil, args: [57000] },
+      { t: 63000, fun: this.spinUntil, args: [67000] },
+      { t: 76000, fun: this.spinUntil, args: [80000] },
+      { t: 86000, fun: this.spinUntil, args: [90000] },
+      { t: 104000, fun: this.rotate },
+      { t: 108000, fun: this.rotate },
+      { t: 110000, fun: this.spinUntil, args: [114000] },
+      { t: 118000, fun: this.rotate },
+      { t: 124000, fun: this.spinUntil, args: [126000] },
+      { t: 132000, fun: this.spinUntil, args: [137000] },
+      { t: 140000, fun: this.rotate },
+      { t: 143000, fun: this.spinUntil, args: [147000] },
+      { t: 152000, fun: this.rotate },
+      { t: 162000, fun: this.rotate },
+      { t: 168000, fun: this.rotate },
+      { t: 174000, fun: this.rotate },
+      { t: 178000, fun: this.rotate },
+      { t: 180000, fun: this.rotate },
+      { t: 186000, fun: this.rotate },
+      { t: 191000, fun: this.rotate },
+      { t: 196000, fun: this.rotate },
+      { t: 212000, fun: this.rotate },
+      { t: 218000, fun: this.rotate },
+      { t: 221000, fun: this.rotate },
+      { t: 226000, fun: this.rotate },
+      { t: 228000, fun: this.rotate },
+      { t: 232000, fun: this.rotate },
+      { t: 234000, fun: this.rotate },
+      { t: 238000, fun: this.rotate },
+      { t: 253000, fun: this.rotate },
+      { t: 258000, fun: this.spinUntil, args: [264000] },
+      { t: 267000, fun: this.spinUntil, args: [272000] },
+      { t: 276000, fun: this.spinUntil, args: [279000] },
+      { t: 283000, fun: this.spinUntil, args: [286000] },
+      { t: 290000, fun: this.spinUntil, args: [294000] },
+      { t: 297000, fun: this.rotate },
+      { t: 300000, fun: this.rotate },
+      { t: 303000, fun: this.rotate }
     ];
   },
 
@@ -105,26 +147,22 @@ Game.prototype = {
   },
 
   setKeybindings: function () {
-    keypress.combo('space', function () {
-      this.rotate(1);
-    }.bind(this));
-
     var move = function (dir) {
       this.player.move(dir, this.rotationCount % 3);
       if (!this.playing) this.play();
     };
 
-    keypress.combo('up', move.bind(this, 'up'));
-    keypress.combo('w', move.bind(this, 'up'));
-
-    keypress.combo('down', move.bind(this, 'down'));
-    keypress.combo('s', move.bind(this, 'down'));
-
-    keypress.combo('left', move.bind(this, 'left'));
-    keypress.combo('a', move.bind(this, 'left'));
-
+    keypress.combo('up',    move.bind(this, 'up'));
+    keypress.combo('w',     move.bind(this, 'up'));
+    keypress.combo('down',  move.bind(this, 'down'));
+    keypress.combo('s',     move.bind(this, 'down'));
+    keypress.combo('left',  move.bind(this, 'left'));
+    keypress.combo('a',     move.bind(this, 'left'));
     keypress.combo('right', move.bind(this, 'right'));
-    keypress.combo('d', move.bind(this, 'right'));
+    keypress.combo('d',     move.bind(this, 'right'));
+
+    // Debug bindings
+    keypress.combo('space', function () { this.rotate(1); }.bind(this));
   },
 
   step: function () {
@@ -134,9 +172,8 @@ Game.prototype = {
     // Items
     var playerCell = this.grid[this.player.gridY][this.player.gridX];
     if (typeof playerCell.contents[this.rotationCount % 3] === 'object') {
-      this.grid[this.player.gridY][this.player.gridX].contents[this.rotationCount % 3] = 0;
       this.collectedItems++;
-
+      this.grid[this.player.gridY][this.player.gridX].contents[this.rotationCount % 3] = 0;
       this.changeGridSprites(this.sprites['hex' + (this.collectedItems + 1) % 8]);
 
       var sound = new Audio();
@@ -145,15 +182,15 @@ Game.prototype = {
     }
 
     // Level events
-    var time = parseInt(this.music.currentTime * 1000, 10);
+    this.time = parseInt(this.music.currentTime * 1000, 10);
     var cull = false;
+
     for (var i = 0; i < this.level.length; i++) {
       var action = this.level[i];
-      if (action.t < time) {
+      if (action.t < this.time) {
         var args = action.args ? action.args : null;
-        action.fun.apply(this, args);
-        action.cull = true;
-        cull = true;
+        action.cull = action.fun.apply(this, args);
+        cull = cull || action.cull;
       }
     }
 
@@ -169,6 +206,17 @@ Game.prototype = {
     if (typeof times !== 'number') times = 1;
     this.rotateTo += Math.PI * 2 / 3 * times; // 120deg
     this.rotationCount++;
+    return true;
+  },
+
+  spinUntil: function (endTime) {
+    console.log(this.time);
+    if (endTime > this.time) {
+      if (this.time % 4 === 0) this.rotate();
+      return false;
+    } else {
+      return true;
+    }
   },
 
   draw: function () {
@@ -188,6 +236,24 @@ Game.prototype = {
     this.context.restore();
 
     requestAnimationFrame(this.draw.bind(this));
+  },
+
+  rotateAndCache: function (image, angle) {
+    var offscreenCanvas = document.createElement('canvas');
+    var offscreenCtx = offscreenCanvas.getContext('2d');
+
+    var size = Math.max(image.width, image.height);
+    offscreenCanvas.width = size;
+    offscreenCanvas.height = size;
+
+    var xOffset = image.width / 2;
+    var yOffset = image.height / 2;
+
+    offscreenCtx.translate(xOffset, yOffset);
+    offscreenCtx.rotate(angle + Math.PI * 2);
+    offscreenCtx.drawImage(image, -(image.width / 2), -(image.height / 2));
+
+    return offscreenCanvas;
   },
 
   makeGrid: function (width, height) {
@@ -254,9 +320,19 @@ Game.prototype = {
   drawPlayer: function () {
     this.context.save();
 
+    var x = this.player.screenX;
+    var y = this.player.screenY;
+
+    var rotationState = this.rotationCount % 3;
+    if (rotationState === 1) y -= this.player.width * 0.1;
+    if (rotationState === 2) {
+      y -= this.player.width * 0.1;
+      x -= this.player.width * 0.05;
+    }
+
     this.context.drawImage(
-      this.player.image,
-      this.player.screenX, this.player.screenY,
+      this.rotateAndCache(this.player.image, -this.rotation),
+      x, y,
       this.player.width, this.player.height
     );
 
@@ -296,5 +372,7 @@ Game.prototype = {
         planted = true;
       }
     }
+
+    return true;
   }
 };

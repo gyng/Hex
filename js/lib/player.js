@@ -3,7 +3,7 @@ function Player(grid, x, y, sprite, sounds) {
   this.gridX = x;
   this.gridY = y;
   this.image = sprite;
-  this.width = 128;
+  this.width = 128; // Divided by 2 for rotation hack
   this.height = 128;
   this.sounds = sounds;
 
