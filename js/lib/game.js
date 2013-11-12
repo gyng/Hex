@@ -156,7 +156,8 @@ Game.prototype = {
       { t: 290000, fun: this.spinUntil, args: [294000] },
       { t: 297000, fun: this.rotate },
       { t: 300000, fun: this.rotate },
-      { t: 303000, fun: this.rotate }
+      { t: 303000, fun: this.rotate },
+      { t: 310000, fun: this.finish }
     ];
   },
 
@@ -366,6 +367,10 @@ Game.prototype = {
     this.playing = true;
     this.music.play();
     $(".instructions").fadeOut();
+  },
+
+  finish: function () {
+    $('.end').css('visibility', 'visible');
   },
 
   plantItem: function (x, y, sector) {
