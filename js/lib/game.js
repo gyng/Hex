@@ -157,7 +157,7 @@ Game.prototype = {
       { t: 297000, fun: this.rotate },
       { t: 300000, fun: this.rotate },
       { t: 303000, fun: this.rotate },
-      { t: 310000, fun: this.finish }
+      { t: 306000, fun: this.finish }
     ];
   },
 
